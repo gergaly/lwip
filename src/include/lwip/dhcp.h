@@ -65,6 +65,23 @@ extern "C" {
 #define DHCP_FLAG_SUBNET_MASK_GIVEN 0x01
 #define DHCP_FLAG_EXTERNAL_MEM      0x02
 
+#define DHCP_STRING_OPTION_LENGTH 16
+
+enum dhcp_string_idx {
+  DHCP_STRING_OPTION_IDX_HOSTNAME = 0,
+  DHCP_STRING_OPTION_IDX_DOMAINNAME,
+  DHCP_STRING_OPTION_IDX_PRIVATE1,
+  DHCP_STRING_OPTION_IDX_PRIVATE2,
+  DHCP_STRING_OPTION_IDX_PRIVATE3,
+  DHCP_STRING_OPTION_IDX_PRIVATE4,
+  DHCP_STRING_OPTION_IDX_MAX,
+};
+
+#define dhcp_get_string_option(idx) (&dhcp_string_options[idx*DHCP_STRING_OPTION_LENGTH])
+#define dhcp_get_option_hostname() (dhcp_get_string_option(0))
+#define dhcp_get_option_domainname() (dhcp_get_string_option(1))
+#define dhcp_get_option_private(idx) (dhcp_get_string_option(idx+DHCP_STRING_OPTION_IDX_DOMAINNAME))
+
 /* AutoIP cooperation flags (struct dhcp.autoip_coop_state) */
 typedef enum {
   DHCP_AUTOIP_COOP_STATE_OFF  = 0,
