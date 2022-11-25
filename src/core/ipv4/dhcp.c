@@ -166,6 +166,10 @@ static u32_t dhcp_rx_options_val[DHCP_OPTION_IDX_MAX];
     @todo: move this into struct dhcp? */
 static u8_t  dhcp_rx_options_given[DHCP_OPTION_IDX_MAX];
 
+#define DOMAIN_LEN 16
+char domain_name[DOMAIN_LEN];
+char dhcp_option_private[DOMAIN_LEN*4];
+
 static u8_t dhcp_discover_request_options[] = {
   DHCP_OPTION_SUBNET_MASK,
   DHCP_OPTION_ROUTER,
@@ -176,6 +180,11 @@ static u8_t dhcp_discover_request_options[] = {
 #if LWIP_DHCP_GET_NTP_SRV
   , DHCP_OPTION_NTP
 #endif /* LWIP_DHCP_GET_NTP_SRV */
+   , DHCP_OPTION_DOMAINNAME
+   , DHCP_OPTION_PRIVATE1
+   , DHCP_OPTION_PRIVATE2
+   , DHCP_OPTION_PRIVATE3
+   , DHCP_OPTION_PRIVATE4
 };
 
 #ifdef DHCP_GLOBAL_XID
@@ -1507,6 +1516,8 @@ dhcp_parse_reply(struct pbuf *p, struct dhcp *dhcp)
 
   /* clear received options */
   dhcp_clear_all_options(dhcp);
+  memset(domain_name,0,DOMAIN_LEN);
+  memset(dhcp_option_private,0,DOMAIN_LEN*4);
   /* check that beginning of dhcp_msg (up to and including chaddr) is in first pbuf */
   if (p->len < DHCP_SNAME_OFS) {
     return ERR_BUF;
@@ -1618,6 +1629,22 @@ again:
         LWIP_DHCP_INPUT_ERROR("len == 4", len == 4, return ERR_VAL;);
         decode_idx = DHCP_OPTION_IDX_T2;
         break;
+      case(DHCP_OPTION_DOMAINNAME): {
+        u16_t copy_len = LWIP_MIN(decode_len, DOMAIN_LEN);
+        pbuf_copy_partial(q, domain_name, copy_len, val_offset);
+        decode_len = 0;
+        break;}
+      case(DHCP_OPTION_PRIVATE1):
+      case(DHCP_OPTION_PRIVATE2):
+      case(DHCP_OPTION_PRIVATE3):
+      case(DHCP_OPTION_PRIVATE4):
+        {
+          u16_t copy_len = LWIP_MIN(decode_len, DOMAIN_LEN);
+          u16_t dest = (op-DHCP_OPTION_PRIVATE1) * DOMAIN_LEN;
+          pbuf_copy_partial(q, &dhcp_option_private[dest], copy_len, val_offset);
+          decode_len = 0;
+          break;
+        }
       default:
         decode_len = 0;
         LWIP_DEBUGF(DHCP_DEBUG, ("skipping option %"U16_F" in options\n", (u16_t)op));

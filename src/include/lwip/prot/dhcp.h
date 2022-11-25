@@ -136,6 +136,7 @@ typedef enum {
 #define DHCP_OPTION_ROUTER          3
 #define DHCP_OPTION_DNS_SERVER      6
 #define DHCP_OPTION_HOSTNAME        12
+#define DHCP_OPTION_DOMAINNAME      15
 #define DHCP_OPTION_IP_TTL          23
 #define DHCP_OPTION_MTU             26
 #define DHCP_OPTION_BROADCAST       28
@@ -163,6 +164,11 @@ typedef enum {
 #define DHCP_OPTION_CLIENT_ID       61
 #define DHCP_OPTION_TFTP_SERVERNAME 66
 #define DHCP_OPTION_BOOTFILE        67
+
+#define DHCP_OPTION_PRIVATE1       224
+#define DHCP_OPTION_PRIVATE2       225
+#define DHCP_OPTION_PRIVATE3       226
+#define DHCP_OPTION_PRIVATE4       227
 
 /* possible combinations of overloading the file and sname fields with options */
 #define DHCP_OVERLOAD_NONE          0
